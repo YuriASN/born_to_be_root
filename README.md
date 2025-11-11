@@ -255,7 +255,7 @@ Finish connection with `logout` or `exit`.</br>
 <br><br>
 
 ## Monitoring info
-First create the bash script (check the [monitoring.sh](https://github.com/YuriASN/42/blob/master/42cursus/born2beroot/monitoring.sh) file).</br>
+First create the bash script (check the [monitoring.sh](https://github.com/YuriASN/born_to_be_root/blob/main/monitoring.sh) file).</br>
 Opens the file to schedule the desired command:
 ```
 crontab -e
@@ -268,4 +268,4 @@ Schedule it for every minute multiple of 10 and 15 seconds after reboot.</br>
 ```
 You can see more exemples of schedules at [Crontab Guru](https://crontab.guru/crontab.5.html).<br>
 <br>
-*For evaluation's questions you can see this [file](https://github.com/YuriASN/42/blob/master/42cursus/born2beroot/Evaluation.md).*
+*For evaluation's questions you can see this [file](https://github.com/YuriASN/born_to_be_root/blob/main/Evaluation.md).*
