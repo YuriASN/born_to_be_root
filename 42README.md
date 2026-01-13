@@ -3,7 +3,11 @@ This project has been created as part of the 42 curriculum by ysantos-
 # Born To Be Root
 
 ## Description
-
+	A virtual machine is a virtual enviroment inside a phisical computer.  
+It shares the hardwares of the host computer to it's own use without interfering with host's operational system. That way you can run different OS inside the same machine, work with unsafe files, test applications in a safe and close enviroment.  
+	Why don't we always use a virtual machine?  
+As you have 2 OS running together sharing resources you lose some performance over a single one working. 
+ 
 ## Instructions
 
 ## Resources

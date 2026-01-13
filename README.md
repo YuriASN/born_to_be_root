@@ -201,7 +201,7 @@ Look for ***PASS_MAX_DAYS*** and change to:
 ```
 PASS_MAX_DAYS	30
 PASS_MIN_DAYS	2
-PASS_WARN_DAYS	7
+PASS_WARN_AGE	7
 ```
 
 To set the same config to existing users without changing current password:
