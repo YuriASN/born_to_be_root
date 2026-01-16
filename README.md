@@ -17,14 +17,16 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 | Action | Command | Explanation |
 | :--- |:--- | :--- | 
 | Create user		| `sudo adduser <USER_NAME>` | |
+| Delete user		| `sudo deluser <USER_NAME>` | *`--remove-home` or *`--remove-all-files`* can be used for complete removal. |
 | Create group		| `sudo addgroup <GROUP_NAME>` | |
-| Add user to group	| `sudo usermod -aG <GROUP_NAME> <USER_NAME>` | *-a Increment a new group. -G suplementar groups* |
+| Delete group		| `sudo deluser <USER_NAME> <GROUP_NAME>` | |
+| Add user to group	| `sudo usermod -aG <GROUP_NAME> <USER_NAME>` | *`-a` Increment a new group. `-G` suplementar groups* |
 | Read users		| `getent passwd` | |
 | Read groups		| `getent group` | |
 | Groups of an user	| `groups <USER_NAME>` | |
 | Users of a group	| `getent group <GROUP_NAME>` | |
 | Password change	| `passwd <USER_NAME>` | *Without \<UserName> change current user* |
-| Hostname change	| `sudo hostnamectl set-hostname <HOST_NAME>` | |
+| Hostname change	| `sudo hostnamectl set-hostname <HOST_NAME>` | *Also need to change the hostname on `/etc/hosts`* |
 | Read sudo log		| `cat /var/log/sudo/sudo.log` | |
 | Cron stop			| `crontab -e` | *Comment line with the task* |
 | Installed services| `systemctl list-unit-files --type=service` | |
@@ -35,10 +37,12 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 	The partitiions were done leaving minnimum for *boot* and *swap*, and splitting the rest between *root* for the file systems and *home* for personal files. The 50/50 division was done as there isn't an idea for what the VM will be used, but the best is to leave more for one or another depending on the usage.  
 
 	The 10Gb were distributed as:  
-		**/boot**: 500mb  
-		**root**:  
-		**/home**:  
-		**swap**: 1Gb  
+	| Partition | Size |
+	| :-	| :-	|
+	| /boot	| 500mb	|
+	| root	| Gb	|
+	| /home	| Gb	|
+	| swap	| 1Gb	|
 
 - **Security Policies**  
 	To protect the system many policies were adopted. Starting with a **encrypted disk** volume and a strong **password policy**.  
