@@ -1,271 +1,82 @@
-# ***BORN TO BE ROOT***
+This project has been created as part of the 42 curriculum by ysantos-
 
-This file will go step by step on how to create a virtual machine under specifics rules.</br>
+# Born To Be Root
 
-### Topic:
+## Description
+	A virtual machine is a virtual enviroment inside a phisical computer.  
+It shares the hardwares of the host computer to it's own use without interfering with host's operational system. That way you can run different OS inside the same machine, work with unsafe files, test applications in a safe and close enviroment.  
+	Why don't we always use a virtual machine?  
+As you have 2 OS running together sharing resources, you lose some performance compared to a single one working.  
 
-1.	[Creating a Virtual Machine](#creating-a-virtual-machine)</br>
+The goal of this project is to understand what a VirtalMachine is and how to create and configure one. With all the strict rules we had to follow, we also learned the usage and configuration of a few basic services that a VM or server use.  
 
-2.	[Installing OS](#installing-os)</br>
-	- [Bonus Partitions](#the-following-goes-for-bonus-partitions)</br>
+## Instructions
+For the creation of the VM I created another Markdown file ([InstallAndConfig.md](https://github.com/YuriASN/born_to_be_root/blob/main/InstallAndConfig.md)) that you can find on this same repository.  
 
-3.	[Configurating the Virtual Machine](#configurating-the-virtual-machine)</br>
-	- [Update package index and Upgrade them](#update-package-index-and-upgrade-them)</br>
-	- [Aptitude install](#aptitude-install)</br>
-	- [Sudo install and config](#sudo-install-and-config)</br>
-	- [Setup password policy](#setup-password-policy)</br>
-	- [Firewall](#firewall)</br>
-	- [SSH](#ssh)</br>
-	- [Monitoring info](#monitoring-info)</br>
+### Commands
+| Action | Command | Explanation |
+| :--- |:--- | :--- | 
+| Create user		| `sudo adduser <USER_NAME>` | |
+| Create group		| `sudo addgroup <GROUP_NAME>` | |
+| Add user to group	| `sudo usermod -aG <GROUP_NAME> <USER_NAME>` | *-a Increment a new group. -G suplementar groups* |
+| Read users		| `getent passwd` | |
+| Read groups		| `getent group` | |
+| Groups of an user	| `groups <USER_NAME>` | |
+| Users of a group	| `getent group <GROUP_NAME>` | |
+| Password change	| `passwd <USER_NAME>` | *Without \<UserName> change current user* |
+| Hostname change	| `sudo hostnamectl set-hostname <HOST_NAME>` | |
+| Read sudo log		| `cat /var/log/sudo/sudo.log` | |
+| Cron stop			| `crontab -e` | *Comment line with the task* |
+| Installed services| `systemctl list-unit-files --type=service` | |
 
-#	Creating a Virtual Machine.
+## Project Description
 
-1.	Create new VM, name it, and select appropriate OS.
+- **Partitioning**  
+	The partitiions were done leaving minnimum for *boot* and *swap*, and splitting the rest between *root* for the file systems and *home* for personal files. The 50/50 division was done as there isn't an idea for what the VM will be used, but the best is to leave more for one or another depending on the usage.  
 
-2.	Select RAM size to be used (minimmum 1Gb).
+	The 10Gb were distributed as:  
+		**/boot**: 500mb  
+		**root**:  
+		**/home**:  
+		**swap**: 1Gb  
 
-3.	Create a new Virtual Hard Disk as VDI and Dynamically allocated size.
+- **Security Policies**  
+	To protect the system many policies were adopted. Starting with a **encrypted disk** volume and a strong **password policy**.  
+	For the **sudo** command the authentication try was limited for 3 and a custom message in case of a wrong password error was included and paths that can be used by sudo were restricted. A log file with input and output of every sudo command was created and TTY mode was enabled, avoiding scripts to use *sudo*.  
+	The **SSH** connection was configured to deny a connection as root and the *port 4242* was set as default, setting also **UFW** to allow only this port open.  
 
-### Load the Debian Image to the VM.
+- **User Management**    
+    The project required a strict user and group management system. A user named after the my 42 login was created and added to the groups **user42** and **sudo**, granting administrative privileges.  
+    The system implements password aging controls, forcing users to change passwords every 30 days, with a minimum of 2 days between changes and a 7-day warning before expiration.  
+    Password quality checks via **libpam-pwquality** enforce strong passwords that must contain at least 10 characters, including uppercase, lowercase, and digits, with no more than 3 consecutive identical characters and at least 7 characters different from the previous password.  
+    Users cannot include their username in passwords, and root passwords follow the same strict policies.  
 
-1.	Settings -> Storage
+- **Services Installed**  
 
-2.	Under "Controller: IDE" select the disk and open the OS iso file.
+### Comparisons
+1. **Debian vs. Rocky**  
+	**Debian** is a non-comercial OS, that's community driven. Have realeases aprox. every 2 years, only when things are ready and has security support for 5 years, not following any entrerprise schedule. Software can be old, but with many patches and support many CPU architectures. Has a vast repository, including test and unstable versions, so you can get random modern tools and pretty much everything you look for, it is supported by third-party which can be seen as unsafe to be used by enterprises. By default Debian is minimal and you assemble what you need.  
+	**Rocky Linux** on the other hand is a OS focused for enterprises. It is community-led but *Red Hat* compatible. **Red Hat Enterprise Linux** being a comercial enterprise for Linux distribution. Its releases happens around every 10 years being aligned with *Red Hat* schedules. Software is *frozen* early and berely changes, giving companies a stability to work long time with it but on the other hand supports primarily x86_64 and ARM64 architecture. Softwares relies vendor-provided RPMs and *Extra Packages for Enterprise Linux*, but supported by trusted parties. Rocky is SELinux enabled and has tuned profiles to optimize your machine use as wanted (power saving, balanceed, performance.).  
 
-# Installing OS.
+2. **AppArmor vs. SELinux**  
+	Both are policy-enforced security models, a *Mandatory Access Control* system. **AppArmor** being path-based and **SELinux** label-based.
+	On SELinux every object (file, process, socket, port) has a *security label* and rules work as: *“Subject with label X can do action Y on object with label Z”*. That way renaming or moving a file doesn't change it's label.  
+	On AppArmor the rules are path-base, so it implies that security depends on filesystem paths stays the same. *"`/usr/bin/nginx` can read `/var/www/\*\*`"*.  
+	Therefore SELinux can constrain interections AppArmor can't, but it depends on correct labelin and policy design and requires active maintenance. Making it harder to learn and debug without deep knowledge. AppArmor although might be less complete it's easier to work with without deep knowledge.  
+	SELinux is more recommended for large servers and and things that are maintened by proffesionals of that area, while AppArmor can be used on Desktop, dev machines and small servers because of it's easier to work with.  
 
-Run the Virtual Machine
+3. **UFW vs. firewalld**  
+	They work as a management Firewall. *UFW* is a simple and humane firewall, has a minimal interface and rules are apllied in a global way. Changes usually require a reload of the firewall, and that's why it's recomended for small servers and individual admins. As it's humane, it's easy to learn to use but it doesn't handle well multiple interfaces or complex networks.  
+	*Firewalld* on the other hand handle changes without reloading the firewall or breaking connections and has good integration with services that "self-register" into the firewall. It is recommended for comporative servers, mutable enviroments (cloud, containers,VMs), and multiple interfaces.  
 
-1.	Select `Install`.
+4. **VirtualBox vs. UTM**  
+   They're virtual machines being *VirtualBox* optimized for **x86/x86-64** hosts, while UTM is for **macOS**, especially Apple Silicon. It can be run on other architecture but the emulation will slowdown the VM. VBox also provides more features, with complex networking options and snapshots of the system, UTM on the other hand is more minimalist making it easier to use and learn, but not good for larger uses.  
 
-2.	Select Language, Location and Keyboard.
-
-3.	Hostname: "...must be your login ending with 42..."<br/>
-	Domain name: N/A.<br/>
-	Set users and passwords<br/>
-	...<br/>
-	Timezone<br/>
-
-## The following goes for **Bonus partitions**.
-
-1.	Manual Partition.<br/>
-	Select disk -> "create new empty partition on this device?" -> YES<br/>
-	/boot<br/>
-	pri/log<br/>
-	Create a new partition<br/>
-	500M<br/>
-	Primary<br/>
-	Beginning<br/>
-	Mount point<br/>
-	/boot<br/>
-	Done<br/>
-
-2.	Create new partition<br/>
-	pri/log<br/>
-	Create a new partition<br/>
-	"max"<br/>
-	Logical<br/>
-	Mount Point -> Do not mount it<br/>
-	Done<br/>
-
-3.	Configure encrypted volumes<br/>
-	Yes<br/>
-	Create encrypted volumes<br/>
-	/dev/sda5<br/>
-	Done<br/>
-	Finish<br/>
-	Erase data? -> YES<br/>
-	Set password<br/>
-
-4.	Configure the Logical Volume Manager<br/>
-	Yes<br/>
-	Create volume group<br/>
-	LVMGroup<br/>
-	/dev/mapper/sda5_crypt<br/>
-	Create logical volume<br/>
-	root, swap, home, var, srv, tmp, var-log.<br/>
-
-5.	Select partitions and place them as:<br/>
-```
-	home #1		|	Ext4		|	/home
-	root #1		|	Ext4		|	/
-	srv #1		|	Ext4		|	/srv
-	swap #1		|	swap area	|	N/A
-	tmp #1		|	Ext4		|	/tmp
-	var #1		|	Ext4		|	/var
-	var-log #1	|	Ext4		|	/var/log
-```
-
-6.	Finish...</br>
-	<br>YES
-
-7. Scan extra media?<br/>
-	NO
-
-8.	Proxy -> empty
-
-9.	Unselect all softwares leaving only `Core Debian`.
-
-10.	Install GRUB
-
-<br><br>
-#	Configurating the Virtual Machine
-**Tip**: During configuration log as root so you don't have to "***sudo***" every command.
-<br><br>
-
-##	Update package index and Upgrade them
-```
-apt update
-apt upgrade
-```
-<br><br>
-
-##	Aptitude install
-Following commands install Aptitude, update packages and upgrade packages.
-```
-apt install aptitude
-aptitude update
-aptitude safe-upgrade
-```
-To check if any package is installed run
-```
-dpkg -l | grep <PACKAGE_NAME>
-```
-<br><br>
-
-##	Sudo install and config
-Create group ***user42*** and add users to both groups
-```
-aptitude install sudo
-sudo addgroup user42
-sudo adduser <USERNAME> sudo
-sudo adduser <USERNAME> user42
-```
-Set sudo logs location secure path and it's password policies.
-```
-sudo mkdir /var/log/sudo
-sudo nano /etc/sudoers.d/sudoconfig
-```
-Paste the text bellow and save it.
-```
-Defaults    passwd_tries=3
-Defaults    badpass_message="You really don't remember it? You only have 3 tries."
-Defaults    log_input,log_output
-Defaults    logfile="/var/log/sudo/sudo.log"
-Defaults    requiretty
-Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
-```
-<br><br>
-
-## Setup password policy
-Install the ***Password Quality Check Lib*** to add more options to password policy
-```
-aptitude install libpam-pwquality
-```
-Edit the file to add the desired policies.
-```
-sudo nano /etc/pam.d/common_password
-```
-After `retry=3` on the 1st uncommented line add:
-```
-reject_username difok=7 minlen=10 ucredit=-1 lcredit=-1 dcredit=-1 maxrepeat=3 enforce_for_root
-```
-</br>
-
-**Policies descriptions**: </br>
-
-> minlen		= minimum password length.<br>
-minclass	= the minimum number of character types that must be used (i.e., uppercase, lowercase, digits, other).<br>
-maxrepeat	= the maximum number of times a single character may be repeated.<br>
-maxclassrepeat	= the maximum number of characters in a row that can be in the same class.<br>
-lcredit		= maximum number of lowercase characters that will generate a credit.<br>
-ucredit		= maximum number of uppercase characters that will generate a credit.<br>
-dcredit		= maximum number of digits that will generate a credit.<br>
-ocredit		= maximum number of other characters that will generate a credit.<br>
-difok		= the minimum number of characters that must be different from the old password.<br>
-remember	= the number of passwords that will be remembered by the system so that they cannot be used again<br>
-gecoscheck	= whether to check for the words from the passwd entry GECOS string of the user (enabled if the value is not 0)<br>
-dictcheck	= whether to check for the words from the cracklib dictionary (enabled if the value is not 0)<br>
-usercheck	= whether to check if the password contains the user name in some form (enabled if the value is not 0)<br>
-enforcing	= new password is rejected if it fails the check and the value is not 0<br>
-dictpath	= path to the cracklib dictionaries. Default is to use the cracklib default.<br>
-
-Now open `login.defs` to set expiration dates for new users, or when current users change their password.
-
-```
-sudo nano /etc/login.defs
-```
-
-Look for ***PASS_MAX_DAYS*** and change to:
-
-```
-PASS_MAX_DAYS	30
-PASS_MIN_DAYS	2
-PASS_WARN_AGE	7
-```
-
-To set the same config to existing users without changing current password:
-```
-sudo chage --mindays 2 --maxdays 30 --warndays 7 <USERNAME>
-```
-Check password status with:
-```
-sudo chage --list <USERNAME>
-```
-<br><br>
-
-## Firewall
-
-If already not installed, install **UFW** and enable it.
-```
-aptitude install ufw
-ufw enable
-```
-Allow connections at **4242 port**.
-```
-ufw allow 4242
-```
-Check UFW status
-```
-ufw status
-```
-<br><br>
-
-## SSH
-Install SSH service.
-```
-aptitude install openssh-server
-```
-
-Setup ssh port.
-In the file below, at **line 13**, uncomment and set the wanted value (4242).<br/>
-To disable ssh connection as root, in **line 32** uncomment and set, `PermitRootLogin no`.
-```
-nano /etc/ssh/sshd_config
-```
-Reboot the system and check changes.
-```
-service ssh status
-```
-To connect with your virtual machine using ssh:
-```
-ssh <username>@<ip-address>
-```
-Finish connection with `logout` or `exit`.</br>
-<br><br>
-
-## Monitoring info
-First create the bash script (check the [monitoring.sh](https://github.com/YuriASN/born_to_be_root/blob/main/monitoring.sh) file).</br>
-Opens the file to schedule the desired command:
-```
-crontab -e
-```	
-Schedule it for every minute multiple of 10 and 15 seconds after reboot.</br>
-15 seconds are needed to login as the crontab runs before it.
-```
-@reboot sleep 15 && bash <FILE_PATH>
-*/10 * * * * bash <FILE_PATH>
-```
-You can see more exemples of schedules at [Crontab Guru](https://crontab.guru/crontab.5.html).<br>
-<br>
-*For evaluation's questions you can see this [file](https://github.com/YuriASN/born_to_be_root/blob/main/Evaluation.md).*
+5. **Aptitude vs. apt**  
+	Apt or Advanced Packaging Tool is a lower-level package manager that can be used for higher-level managers. Aptitude on the other hand is a high-level package manager that has all functionaties of apt, apt-get, apt-cache and more.  
+	It checks for packages dependencies in order to install, remove or solve a conflict while with apt-get you would have to set an option for it. The search command in Aptitude is better than apt, giving you information if the package listed is already installed `i` or just present `p`.  
+	
+## Resources
+The OS: [Debian](debian.org)  
+The VM: [VirtualBox](https://www.virtualbox.org/)  
+For the commands and configuration, I used the [man](https://man7.org/linux/man-pages/index.html) pages, [stackoverflow](https://stackoverflow.com/) and [ChatGPT](https://chat.openai.com/) for better, deeper and more humane explanation and comparsion in between commands that seemed to do the same thing.  
