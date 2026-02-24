@@ -30,6 +30,8 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 | Read sudo log		| `cat /var/log/sudo/sudo.log` | |
 | Cron stop			| `crontab -e` | *Comment line with the task* |
 | Installed services| `systemctl list-unit-files --type=service` | |
+| Find IP| `ip address` | |
+| ssh connect| `ssh -p PortOpen User@ServerIP ` | |
 
 ## Project Description
 
