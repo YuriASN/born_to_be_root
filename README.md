@@ -37,12 +37,15 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 	The partitiions were done leaving minnimum for *boot* and *swap*, and splitting the rest between *root* for the file systems and *home* for personal files. The 50/50 division was done as there isn't an idea for what the VM will be used, but the best is to leave more for one or another depending on the usage.  
 
 	The 10Gb were distributed as:  
-	| Partition | Size |
-	| :-	| :-	|
-	| /boot	| 500mb	|
-	| root	| Gb	|
-	| /home	| Gb	|
-	| swap	| 1Gb	|
+	| Partition | Size | Usage |
+	| :-	| :-	| :-		|
+	| /boot	| 500mb	| Used for kernel, bootloader and other bases for the OS to run.	|
+	| root	| Gb	| Root is where your system and programs will be.	|
+	| /home	| Gb	| Is where personal data will be stored. Files, downloads and user configuration.	|
+	| swap	| 1Gb	| RAM area where data will be stored in case of hibernation or when you run out of RAM. The OS will move non used memory to it.	|
+	
+	Dividing the everything in partitions protects in case of a system failure, as you can reinstall it without touching personal files or even the logs, if you have the */var*.  
+	**/var**: Is where you keep logs, cache of packages, database and etc.  
 
 - **Security Policies**  
 	To protect the system many policies were adopted. Starting with a **encrypted disk** volume and a strong **password policy**.  
@@ -56,6 +59,15 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
     Users cannot include their username in passwords, and root passwords follow the same strict policies.  
 
 - **Services Installed**  
+	As asked for, only basic services where installed, keeping the VM as "light" and as possible.  
+	**SSH**  
+		SSH or Secure Shell, is a protocol to allow secure remote access to a server through an encrypted connection.  
+	**UFW**  
+		Uncomplicated FireWall or UFW, is a service that manage the firewall rules of the server. It allows or block ports to be used controlling the incoming and outgoing traffic.  
+	**SUDO**  
+		Super User Do or SUDO, allows especific users to execute root commands. Users have to be added to a sudo group to be able to use root commands without the need of login as root. It also keeps a register of the commands used and can limit the access.  
+	**APTITUDE**  
+		Aptitude is a package management tool that helps install, update and remove programs and it's dependencies.
 
 ### Comparisons
 1. **Debian vs. Rocky**  
@@ -83,4 +95,4 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 ## Resources
 The OS: [Debian](debian.org)  
 The VM: [VirtualBox](https://www.virtualbox.org/)  
-For the commands and configuration, I used the [man](https://man7.org/linux/man-pages/index.html) pages, [stackoverflow](https://stackoverflow.com/) and [ChatGPT](https://chat.openai.com/) for better, deeper and more humane explanation and comparsion in between commands that seemed to do the same thing.  
+For the commands and configuration, I used the [man](https://man7.org/linux/man-pages/index.html) pages, [stackoverflow](https://stackoverflow.com/) and [ChatGPT](https://chat.openai.com/) for better, deeper and more humane explanation and comparsion in between commands, that before, seemed to do the same thing.  
