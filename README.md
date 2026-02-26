@@ -32,6 +32,7 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 | Cron stop			| `crontab -e` | *Comment line with the task* |
 | Installed services| `systemctl list-unit-files --type=service` | |
 | Find IP| `ip address` | |
+| ssh status		| `sudo systemctl status ssh` | Print the ssh status and configuration	|
 | ssh connect| `ssh -p PortOpen User@ServerIP ` | |
 
 ## Project Description
