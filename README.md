@@ -21,6 +21,7 @@ For the creation of the VM I created another Markdown file ([InstallAndConfig.md
 | Create group		| `sudo addgroup <GROUP_NAME>` | |
 | Delete group		| `sudo deluser <USER_NAME> <GROUP_NAME>` | |
 | Add user to group	| `sudo usermod -aG <GROUP_NAME> <USER_NAME>` | *`-a` Increment a new group. `-G` suplementar groups* |
+| See logged users	| `who`		| `seat0` indicates that user is logged on the computer, while `pts` indicates user is using a ssh connection. |
 | Read users		| `getent passwd` | |
 | Read groups		| `getent group` | |
 | Groups of an user	| `groups <USER_NAME>` | |
